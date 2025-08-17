@@ -2,8 +2,6 @@
 
 Thank you for your interest in contributing to Nexus! This document provides guidelines and instructions for contributors.
 
-
-
 ## Development Setup
 
 1. **Fork and Clone**
@@ -19,7 +17,6 @@ Thank you for your interest in contributing to Nexus! This document provides gui
    npm install
    ```
 
-
 ## Development Workflow
 
 ### Branch Naming
@@ -29,8 +26,6 @@ Thank you for your interest in contributing to Nexus! This document provides gui
 - `docs/documentation-update` - Documentation updates
 - `refactor/code-improvement` - Code refactoring
 - `chore/maintenance-task` - Maintenance tasks
-
-
 
 ### Pull Request Process
 
@@ -86,8 +81,6 @@ Thank you for your interest in contributing to Nexus! This document provides gui
   - `PascalCase` for classes and types
   - `UPPER_SNAKE_CASE` for constants
 
-
-
 ## Testing Guidelines
 
 While we're setting up the testing framework, please:
@@ -99,7 +92,6 @@ While we're setting up the testing framework, please:
 ## Documentation
 
 - Update README.md for new features
-
 
 ## Questions?
 
