@@ -1,4 +1,4 @@
-### Introduction
+## Introduction
 
 Nexus is a Model Context Protocol (MCP) server that makes a set of blockchain tools available for the Hyperliquid EVM chain through a standard tool interface. It lets AI agents and clients that work with MCP safely query the state of the chain and do things on-chain through validated tool calls.
 
