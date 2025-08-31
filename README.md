@@ -68,14 +68,10 @@ npm install
 
 ### Configuration
 
-Create a `.env` file in the project root with:
+Copy the environment file:
 
-```bash
-CHAIN_ID=998,
-CHAIN_RPC_URL=https://hyperliquid-testnet.drpc.org,
-BLOCK_EXPLORER_URL=https://testnet.purrsec.com/,
-IS_TESTNET=true,
-PRIVATE_KEY=0x...
+```
+cp .env.example .env
 ```
 
 The server uses `src/config.ts` to define the chain and to create a `viem` wallet client from these values.
