@@ -4,6 +4,7 @@ import { deployContractsSchema } from "./hyper-evm/deployContracts/schemas.js";
 import { sendFundsInputSchema } from "./hyper-evm/sendFunds/schemas.js";
 import { getTransactionReceiptInputSchema } from "./hyper-evm/getTransactionReceipt/schemas.js";
 import { getTokenBalanceInputSchema } from "./hyper-evm/getTokenBalance/schemas.js";
+import { getLogsInputSchema } from "./hyper-evm/getLogs/schemas.js";
 
 export const GET_BALANCE_TOOL: Tool = {
   name: "get_balance",
@@ -62,5 +63,16 @@ export const GET_TOKEN_BALANCE_TOOL: Tool = {
     type: "object",
     properties: getTokenBalanceInputSchema.shape,
     required: ["contractAddress", "userAddress"],
+  },
+};
+
+export const GET_LOGS_TOOL: Tool = {
+  name: "get_logs",
+  description:
+    "Get the logs of any ERC20 token(present on hyperliquid) between two blocks",
+  inputSchema: {
+    type: "object",
+    properties: getLogsInputSchema.shape,
+    requires: [],
   },
 };
