@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc && node --max-old-space-size=2048 build/main.js",
-    "start": "node --max-old-space-size=2048 build/main.js",
+    "dev": "tsc && node --max-old-space-size=4096 build/main.js",
+    "start": "node --max-old-space-size=4096 build/main.js",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write \"src/**/*.{ts,js,json}\" \"*.{json,md}\"",
