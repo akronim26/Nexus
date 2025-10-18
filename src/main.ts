@@ -36,7 +36,8 @@ import {
 } from "./tools/hyper-evm/handleStake/schemas.js";
 import { getLogs } from "./tools/hyper-evm/getLogs/index.js";
 import { getHistoricalOrders } from "./tools/hypercore/getHistoricalOrders/index.js";
-import http from "http";
+import express, { type Request, type Response, type NextFunction } from "express";
+import cors from "cors";
 
 async function main() {
   console.error("Starting Hyperliquid MCP server...");
@@ -204,92 +205,75 @@ async function main() {
   });
 
   const port = parseInt(process.env.PORT || "3000", 10);
+  const app = express();
 
-  const httpServer = http.createServer(async (req, res) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  app.use(cors());
+  app.use(express.json());
 
-    if (req.method === "OPTIONS") {
-      res.writeHead(200);
-      res.end();
-      return;
-    }
-
-    if (req.method === "GET" && req.url === "/") {
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(
-        JSON.stringify({
-          status: "running",
-          service: "Hyperliquid MCP Server",
-          timestamp: new Date().toISOString(),
-          endpoints: {
-            mcp: "/mcp (POST)",
-            health: "/ (GET)",
-          },
-        })
-      );
-      return;
-    }
-
-    if (req.method === "POST" && req.url === "/mcp") {
-      let body = "";
-
-      req.on("data", chunk => {
-        body += chunk.toString();
-      });
-
-      req.on("end", async () => {
-        try {
-          const request = JSON.parse(body);
-          console.error("HTTP Request received:", request);
-
-          let handler;
-          let handlerInput;
-
-          switch (request.method) {
-            case "tools/list":
-              handler = (server as any)._requestHandlers?.get(
-                ListToolsRequestSchema
-              );
-              handlerInput = {};
-              break;
-            case "tools/call":
-              handler = (server as any)._requestHandlers?.get(
-                CallToolRequestSchema
-              );
-              handlerInput = request;
-              break;
-            default:
-              throw new Error(`Unknown method: ${request.method}`);
-          }
-
-          if (!handler) {
-            throw new Error(`No handler found for method: ${request.method}`);
-          }
-
-          const response = await handler(handlerInput);
-
-          res.writeHead(200, { "Content-Type": "application/json" });
-          res.end(JSON.stringify(response));
-        } catch (error) {
-          console.error("HTTP Error:", error);
-          res.writeHead(500, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              error: error instanceof Error ? error.message : String(error),
-            })
-          );
-        }
-      });
-      return;
-    }
-
-    res.writeHead(404, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "Not found" }));
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    console.error(`${req.method} ${req.url}`);
+    next();
   });
 
-  httpServer.listen(port, () => {
+  app.get("/", (req: Request, res: Response) => {
+    res.json({
+      status: "running",
+      service: "Hyperliquid MCP Server",
+      timestamp: new Date().toISOString(),
+      endpoints: {
+        mcp: "/mcp (POST)",
+        health: "/ (GET)",
+      },
+    });
+  });
+
+  app.post("/mcp", async (req: Request, res: Response) => {
+    try {
+      const request = req.body;
+      console.error("MCP Request received:", request);
+
+      let handler;
+      let handlerInput;
+
+      switch (request.method) {
+        case "tools/list":
+          handler = (server as any)._requestHandlers?.get(ListToolsRequestSchema);
+          handlerInput = {};
+          break;
+        case "tools/call":
+          handler = (server as any)._requestHandlers?.get(CallToolRequestSchema);
+          handlerInput = request;
+          break;
+        default:
+          throw new Error(`Unknown method: ${request.method}`);
+      }
+
+      if (!handler) {
+        throw new Error(`No handler found for method: ${request.method}`);
+      }
+
+      const response = await handler(handlerInput);
+      res.json(response);
+    } catch (error) {
+      console.error("MCP Error:", error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  });
+
+  app.use((req: Request, res: Response) => {
+    res.status(404).json({ error: "Not found" });
+  });
+
+  app.use((err: Error, req: Request, res: Response, /*next: NextFunction*/) => {
+    console.error("Server Error:", err);
+    res.status(500).json({
+      error: err.message || "Internal server error",
+    });
+  });
+
+  app.listen(port, () => {
     console.error(`Hyperliquid MCP Server running on port ${port}`);
     console.error(`Health check: http://localhost:${port}/`);
   });
