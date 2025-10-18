@@ -1,4 +1,6 @@
-import { walletClient } from "../../../config.js";
+import { createWalletClient, http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { hyperEvmConfig } from "../../../config.js";
 import { isAddress, parseEther, parseGwei } from "viem";
 import type { GetFundsInput } from "./schemas.js";
 
@@ -15,11 +17,14 @@ export async function sendFunds(transactionDetails: GetFundsInput) {
       throw new Error(`Invalid HyperEVM address: ${address}`);
     }
 
-    const account = walletClient.account;
-
-    if (!account) {
-      throw new Error("No sender account found");
-    }
+    const account = privateKeyToAccount(
+      transactionDetails.privateKey as `0x${string}`
+    );
+    const walletClient = createWalletClient({
+      account,
+      chain: hyperEvmConfig,
+      transport: http(),
+    });
 
     const transactionHash = await walletClient.sendTransaction({
       account,

@@ -2,6 +2,14 @@ import { z } from "zod";
 import { isAddress } from "viem";
 
 export const getStakingInputSchema = z.object({
+  privateKey: z
+    .string()
+    .regex(/^0x[a-fA-F0-9]{64}$/, {
+      message: "Must be a valid private key (0x + 64 hex chars)",
+    })
+    .describe(
+      "Private key in 0x-prefixed hex format, 64 characters long (32 bytes)."
+    ),
   amountToStake: z
     .string()
     .regex(/^\d+(\.\d+)?$/, {
@@ -39,6 +47,14 @@ export const getStakingInputSchema = z.object({
 });
 
 export const getUnstakingInputSchema = z.object({
+  privateKey: z
+    .string()
+    .regex(/^0x[a-fA-F0-9]{64}$/, {
+      message: "Must be a valid private key (0x + 64 hex chars)",
+    })
+    .describe(
+      "Private key in 0x-prefixed hex format, 64 characters long (32 bytes)."
+    ),
   amountToUnstake: z
     .string()
     .regex(/^\d+(\.\d+)?$/, {

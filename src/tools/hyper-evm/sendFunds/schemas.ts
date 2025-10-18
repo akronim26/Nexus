@@ -11,6 +11,9 @@ export const privateKeySchema = z
   );
 
 export const sendFundsInputSchema = z.object({
+  privateKey: privateKeySchema.describe(
+    "Private key in 0x-prefixed hex format, 64 characters long (32 bytes)."
+  ),
   receiverAddress: z
     .string()
     .refine(address => isAddress(address), {

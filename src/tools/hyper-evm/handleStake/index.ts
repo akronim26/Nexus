@@ -1,8 +1,34 @@
-import { walletClient, exchClient, infoClient } from "../../../config.js";
+import { createWalletClient, http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { hyperEvmConfig } from "../../../config.js";
+import * as hyper from "@nktkas/hyperliquid";
 import type { getStakingInput, getUnstakingInput } from "./schemas.js";
 
 export async function performStaking(stakingDetails: getStakingInput) {
   try {
+    const account = privateKeyToAccount(
+      stakingDetails.privateKey as `0x${string}`
+    );
+    const walletClient = createWalletClient({
+      account,
+      chain: hyperEvmConfig,
+      transport: http(),
+    });
+
+    const transport = new hyper.HttpTransport({
+      isTestnet: stakingDetails.isTestnet,
+      timeout: 30000,
+    });
+
+    const exchClient = new hyper.ExchangeClient({
+      wallet: walletClient,
+      transport: transport,
+      isTestnet: stakingDetails.isTestnet,
+      signatureChainId: stakingDetails.isTestnet ? "0x66eee" : "0x1",
+    });
+
+    const infoClient = new hyper.InfoClient({ transport });
+
     const validators = await infoClient.validatorSummaries();
 
     const validator = validators.find(
@@ -69,6 +95,29 @@ export async function performStaking(stakingDetails: getStakingInput) {
 
 export async function performUnstaking(unstakingDetails: getUnstakingInput) {
   try {
+    const account = privateKeyToAccount(
+      unstakingDetails.privateKey as `0x${string}`
+    );
+    const walletClient = createWalletClient({
+      account,
+      chain: hyperEvmConfig,
+      transport: http(),
+    });
+
+    const transport = new hyper.HttpTransport({
+      isTestnet: unstakingDetails.isTestnet,
+      timeout: 30000,
+    });
+
+    const exchClient = new hyper.ExchangeClient({
+      wallet: walletClient,
+      transport: transport,
+      isTestnet: unstakingDetails.isTestnet,
+      signatureChainId: unstakingDetails.isTestnet ? "0x66eee" : "0x1",
+    });
+
+    const infoClient = new hyper.InfoClient({ transport });
+
     const userAddress = walletClient.account?.address;
     if (!userAddress) {
       throw new Error("Failed to load wallet client account");

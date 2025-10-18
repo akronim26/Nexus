@@ -37,7 +37,7 @@ export const DEPLOY_CONTRACTS_TOOL: Tool = {
   inputSchema: {
     type: "object",
     properties: deployContractsSchema.shape,
-    required: ["abi", "bytecode", "constructorArguments"],
+    required: ["privateKey", "abi", "bytecode", "constructorArguments"],
   },
 };
 
@@ -47,7 +47,7 @@ export const SEND_FUNDS_TOOL: Tool = {
   inputSchema: {
     type: "object",
     properties: sendFundsInputSchema.shape,
-    required: ["receiverAddress", "amountToSend"],
+    required: ["privateKey", "receiverAddress", "amountToSend"],
   },
 };
 
@@ -77,7 +77,7 @@ export const STAKE_TOOL: Tool = {
   inputSchema: {
     type: "object",
     properties: getStakingInputSchema.shape,
-    required: ["amountToStake", "validatorAddress", "isTestnet"],
+    required: ["privateKey", "amountToStake", "validatorAddress", "isTestnet"],
   },
 };
 
@@ -87,7 +87,12 @@ export const UNSTAKE_TOOL: Tool = {
   inputSchema: {
     type: "object",
     properties: getUnstakingInputSchema.shape,
-    required: ["amountToUnstake", "validatorAddress", "isTestnet"],
+    required: [
+      "privateKey",
+      "amountToUnstake",
+      "validatorAddress",
+      "isTestnet",
+    ],
   },
 };
 

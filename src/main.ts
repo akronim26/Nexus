@@ -1,5 +1,4 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -37,6 +36,7 @@ import {
 } from "./tools/hyper-evm/handleStake/schemas.js";
 import { getLogs } from "./tools/hyper-evm/getLogs/index.js";
 import { getHistoricalOrders } from "./tools/hypercore/getHistoricalOrders/index.js";
+import http from "http";
 
 async function main() {
   console.error("Starting Hyperliquid MCP server...");
@@ -75,14 +75,26 @@ async function main() {
           }
 
           case "send_funds": {
-            const { receiverAddress, amountToSend } = args as {
+            const {
+              privateKey,
+              receiverAddress,
+              amountToSend,
+              maxFeePerGas,
+              maxPriorityFeePerGas,
+            } = args as {
+              privateKey: string;
               receiverAddress: string;
               amountToSend: string;
+              maxFeePerGas?: string;
+              maxPriorityFeePerGas?: string;
             };
 
             const validatedInput = sendFundsInputSchema.parse({
+              privateKey,
               receiverAddress,
               amountToSend,
+              maxFeePerGas,
+              maxPriorityFeePerGas,
             });
 
             const result = await sendFunds(validatedInput);
@@ -112,6 +124,7 @@ async function main() {
 
           case "stake": {
             const input = args as {
+              privateKey: string;
               amountToStake: string;
               validatorAddress: string;
               isTestnet: boolean | string;
@@ -124,6 +137,7 @@ async function main() {
 
           case "unstake": {
             const input = args as {
+              privateKey: string;
               amountToUnstake: string;
               validatorAddress: string;
               isTestnet: boolean | string;
@@ -153,7 +167,7 @@ async function main() {
 
           default: {
             throw new Error(
-              `Tool '${name}' not found. Available tools: get_latest_block, get_balance, deploy_contracts, send_funds, get_transaction_receipt, get_token_balance, stake, unstake`
+              `Tool '${name}' not found. Available tools: get_latest_block, get_balance, deploy_contracts, send_funds, get_transaction_receipt, get_token_balance, stake, unstake, get_logs, get_historical_orders`
             );
           }
         }
@@ -189,11 +203,99 @@ async function main() {
     };
   });
 
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("Hyperliquid MCP Server running on stdio");
+  const port = parseInt(process.env.PORT || "3000", 10);
+
+  const httpServer = http.createServer(async (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+    if (req.method === "OPTIONS") {
+      res.writeHead(200);
+      res.end();
+      return;
+    }
+
+    if (req.method === "GET" && req.url === "/") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          status: "running",
+          service: "Hyperliquid MCP Server",
+          timestamp: new Date().toISOString(),
+          endpoints: {
+            mcp: "/mcp (POST)",
+            health: "/ (GET)",
+          },
+        })
+      );
+      return;
+    }
+
+    if (req.method === "POST" && req.url === "/mcp") {
+      let body = "";
+
+      req.on("data", chunk => {
+        body += chunk.toString();
+      });
+
+      req.on("end", async () => {
+        try {
+          const request = JSON.parse(body);
+          console.error("HTTP Request received:", request);
+
+          let handler;
+          let handlerInput;
+
+          switch (request.method) {
+            case "tools/list":
+              handler = (server as any)._requestHandlers?.get(
+                ListToolsRequestSchema
+              );
+              handlerInput = {};
+              break;
+            case "tools/call":
+              handler = (server as any)._requestHandlers?.get(
+                CallToolRequestSchema
+              );
+              handlerInput = request;
+              break;
+            default:
+              throw new Error(`Unknown method: ${request.method}`);
+          }
+
+          if (!handler) {
+            throw new Error(`No handler found for method: ${request.method}`);
+          }
+
+          const response = await handler(handlerInput);
+
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify(response));
+        } catch (error) {
+          console.error("HTTP Error:", error);
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({
+              error: error instanceof Error ? error.message : String(error),
+            })
+          );
+        }
+      });
+      return;
+    }
+
+    res.writeHead(404, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Not found" }));
+  });
+
+  httpServer.listen(port, () => {
+    console.error(`Hyperliquid MCP Server running on port ${port}`);
+    console.error(`Health check: http://localhost:${port}/`);
+  });
 }
 
 main().catch(error => {
   console.error("Fatal error in main():", error);
+  process.exit(1);
 });
