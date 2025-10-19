@@ -57,26 +57,96 @@ Each tool validates inputs with `zod` and executes using `viem` on the configure
 ### Prerequisites
 
 - Node.js 18+
-- An RPC endpoint for Hyperliquid EVM
-- A funded private key for actions that require signing (e.g., send funds, deploy)
+- A private key for actions that require signing (e.g., send funds, deploy, stake)
 
 ### Installation
+
+### Option 1: Integration with Claude Desktop
+
+To add this MCP server to Claude Desktop:
+
+Create or edit the Claude Desktop configuration file at:
+
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+You can easily access this file via the Claude Desktop app by navigating to **Claude > Settings > Developer > Edit Config**.
+
+Add the following configuration:
+
+```json
+{
+  "mcpServers": {
+    "nexus": {
+      "command": "npx",
+      "args": ["-y", "blocsociitr-nexus@latest"],
+      "env": {
+        "CHAIN_ID": "998",
+        "CHAIN_RPC_URL": "https://hyperliquid-testnet.drpc.org",
+        "BLOCK_EXPLORER_URL": "https://hyperevm-explorer.vercel.app/",
+        "IS_TESTNET": "true",
+        "PRIVATE_KEY": "your_private_key_here"
+      }
+    }
+  }
+}
+```
+
+⚠️  Important:
+   1. Replace YOUR_PRIVATE_KEY_HERE with your actual private key
+   2. Your private key MUST start with 0x
+   3. Restart Claude Desktop after saving the config
+
+### Option 2: Run Locally (For Contributing or Development)
+
+Clone this repository:
+
+```bash
+git clone https://github.com/blocsociitr/nexus.git
+cd nexus
+```
+
+Install dependencies:
 
 ```bash
 npm install
 ```
 
+Build the project:
+
+```bash
+npm run build
+```
+
 ### Configuration
 
-Copy the environment file:
+Create a `.env` file with your credentials:
 
+```bash
+# Hyperliquid EVM Configuration
+# Chain ID for Hyperliquid EVM
+# Use 998 for Hyperliquid Testnet, 1 for Mainnet
+CHAIN_ID=998
+
+# RPC endpoint for Hyperliquid EVM
+# Testnet: https://hyperliquid-testnet.drpc.org
+# Mainnet: https://hyperliquid.drpc.org
+CHAIN_RPC_URL=https://hyperliquid-testnet.drpc.org
+
+# Block explorer URL
+# Testnet: https://hyperevm-explorer.vercel.app/
+# Mainnet: https://explorer.hyperliquid.io/
+BLOCK_EXPLORER_URL=https://hyperevm-explorer.vercel.app/
+
+# Set to true for testnet, false for mainnet
+IS_TESTNET=true
+
+# Your private key
+PRIVATE_KEY=your_private_key_here
 ```
-cp .env.example .env
-```
 
-The server uses `src/config.ts` to define the chain and to create a `viem` wallet client from these values.
-
-### Build and run
+### Build and Run
 
 ```bash
 npm run build
@@ -85,27 +155,7 @@ npm start
 
 You should see: "Hyperliquid MCP Server running on stdio".
 
-## Using the server from an MCP client
-
-Any MCP-compatible client can:
-
-1. List tools
-2. Call tools with JSON arguments that match the advertised schemas
-
-Example tool calls (names only; argument shapes are defined by the server):
-
-- get_latest_block
-- get_balance { userAddress }
-- get_token_balance { contractAddress, userAddress }
-- send_funds { receiverAddress, amountToSend }
-- deploy_contracts { abi, bytecode, constructorArguments }
-- get_transaction_receipt { txHash }
-- stake { amountToStake, validatorAddress, isTestnet }
-- unstake { amountToUnstake, validatorAddress, isTestnet }
-
-Inspect `src/main.ts` and `src/tools/**` for exact schemas and behaviors.
-
-## Development
+### Development
 
 - Build: `npm run build`
 - Dev: `npm run dev`
@@ -122,6 +172,7 @@ src/
   tools/                  # tool definitions and implementations
     tools.ts              # Tool metadata + schemas for MCP
     hyper-evm/            # EVM-specific tool implementations
+    hyper-core/           # hyperCore specific tool implementations
 ```
 
 ## Team
