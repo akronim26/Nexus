@@ -46,14 +46,11 @@ The server currently exposes the following tools (see `src/tools/tools.ts`):
 - get_transaction_receipt: Fetch a transaction receipt by hash
 - stake: Stake HYPE tokens on Hyperliquid
 - unstake: Unstake HYPE tokens from Hyperliquid
-
-Each tool validates inputs with `zod` and executes using `viem` on the configured Hyperliquid RPC.
-
-## Tools in progress
-
 - call_function: Call the function of a contract
 - fetch_transactions: Fetch the transactions for a user address
 - fetch_orders: Fetch the historical orders for a user address
+
+Each tool validates inputs with `zod` and executes using `viem` on the configured Hyperliquid RPC.
 
 ## Getting started
 
