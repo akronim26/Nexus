@@ -1,12 +1,22 @@
 {
-  "name": "mcp",
+  "name": "blocsociitr-nexus",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Nexus is a Model Context Protocol (MCP) server that makes a set of blockchain tools available for the Hyperliquid EVM chain through a standard tool interface",
+  "main": "build/index.js",
   "type": "module",
+  "bin": {
+    "blocsociitr-nexus": "./build/main.js"
+  },
+  "files": [
+    "build/**/*",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "start": "node build/main.js",
     "dev": "tsc && node build/main.js",
+    "prepare": "npm run build",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write \"src/**/*.{ts,js,json}\" \"*.{json,md}\"",
@@ -16,10 +26,27 @@
     "prebuild": "npm run clean",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "mcp",
+    "hyperliquid",
+    "claude",
+    "ai",
+    "model-context-protocol",
+    "defi"
+  ],
+  "author": "BlocsocIITR",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BlocSoc-iitr/Nexus"
+  },
+  "homepage": "https://github.com/BlocSoc-iitr/Nexus/blob/main/README.md",
+  "bugs": {
+    "url": "https://github.com/BlocSoc-iitr/Nexus/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.3",
     "@nktkas/hyperliquid": "^0.22.1",
