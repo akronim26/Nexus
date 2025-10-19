@@ -93,10 +93,11 @@ Add the following configuration:
 }
 ```
 
-⚠️  Important:
-   1. Replace YOUR_PRIVATE_KEY_HERE with your actual private key
-   2. Your private key MUST start with 0x
-   3. Restart Claude Desktop after saving the config
+⚠️ Important:
+
+1.  Replace YOUR_PRIVATE_KEY_HERE with your actual private key
+2.  Your private key MUST start with 0x
+3.  Restart Claude Desktop after saving the config
 
 ### Option 2: Run Locally (For Contributing or Development)
 
