@@ -13,6 +13,7 @@ import {
   SEND_FUNDS_TOOL,
   GET_TRANSACTION_RECEIPT_TOOL,
   GET_TOKEN_BALANCE_TOOL,
+  FETCH_TRANSACTIONS_TOOL,
   GET_LOGS_TOOL,
   CALL_CONTRACT_FUNCTION,
   STAKE_TOOL,
@@ -32,6 +33,8 @@ import { getTransactionReceipt } from "./tools/hyper-evm/getTransactionReceipt/i
 import type { getTransactionReceiptInput } from "./tools/hyper-evm/getTransactionReceipt/schemas.js";
 import { getTokenBalanceInputSchema } from "./tools/hyper-evm/getTokenBalance/schemas.js";
 import { getTokenBalance } from "./tools/hyper-evm/getTokenBalance/index.js";
+import { fetchTransactions } from "./tools/hyper-evm/fetchTransactions/index.js";
+import type { FetchTransactionsInput } from "./tools/hyper-evm/fetchTransactions/schemas.js";
 import {
   performStaking,
   performUnstaking,
@@ -166,6 +169,12 @@ async function main() {
             return result;
           }
 
+          case "fetch_transactions": {
+            const input = args as FetchTransactionsInput;
+            const result = await fetchTransactions(input);
+            return result;
+          }
+
           case "stake": {
             const input = args as {
               amountToStake: string;
@@ -247,6 +256,7 @@ async function main() {
         SEND_FUNDS_TOOL,
         GET_TRANSACTION_RECEIPT_TOOL,
         GET_TOKEN_BALANCE_TOOL,
+        FETCH_TRANSACTIONS_TOOL,
         CALL_CONTRACT_FUNCTION,
         STAKE_TOOL,
         UNSTAKE_TOOL,
