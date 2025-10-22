@@ -1,8 +1,4 @@
-import {
-  type Abi,
-  type AbiFunction,
-  isAddress,
-} from "viem";
+import { type Abi, type AbiFunction, isAddress } from "viem";
 import { publicClient, walletClient } from "../../../config.js";
 import type { GetContractDetails } from "./schema.js";
 
